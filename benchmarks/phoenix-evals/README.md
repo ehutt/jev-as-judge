@@ -147,6 +147,8 @@ The command writes these artifacts under `analysis/results/<sweep-run-id>/`:
 
 - `runs.csv` with one row per judge, task, example, and repetition, including excluded rows and their reasons
 - `summary.csv` with accuracy, bootstrap intervals, macro metrics, agreement, consistency, latency, token usage, cost, failures, and Jev Brier score
+- `class-balance.csv` with each task's reference-label support and class share
+- `class-metrics.csv` with per-label precision, recall, F1, and support for every judge and task where both reference classes are present
 - paired comparison and task-divergence CSV files
 - Jev uncertainty and conventional-judge variability CSV files
 - `report.html` with self-contained interactive charts
@@ -159,7 +161,7 @@ pnpm analyze 20260922-reproduction-1 \
   --runs-csv analysis/results/20260922-reproduction-1/runs.csv
 ```
 
-Failures stay in the accuracy denominator. Accuracy intervals resample base examples, which are the independent sampling unit. Judge variation across repeated calls is reported separately as consistency, flip rate, and label entropy. See [docs/methodology.md](docs/methodology.md) for definitions and analysis decisions.
+Failures stay in the accuracy denominator. Accuracy intervals resample base examples, which are the independent sampling unit. Macro and per-class precision, recall, and F1 are reported only for tasks with at least two reference classes. Judge variation across repeated calls is reported separately as consistency, flip rate, and label entropy. See [docs/methodology.md](docs/methodology.md) for definitions and analysis decisions.
 
 ## Reproducibility boundaries
 

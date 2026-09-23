@@ -44,7 +44,9 @@ The AI SDK retries a transient provider failure twice. A call that still fails r
 
 Accuracy is the mean of the per-run correctness indicator. The 95 percent interval bootstraps base examples and gives each example its mean over repetitions before resampling.
 
-Macro precision, recall, and F1 operate on the expected and predicted labels. Cohen's kappa measures agreement with the reference labels after accounting for label prevalence.
+Macro precision, recall, and F1 operate on the expected and predicted labels and give each reference class equal weight. Macro recall is equivalent to balanced accuracy. The analysis also reports per-class precision, recall, and F1 with support so minority-class behavior remains visible. Cohen's kappa measures agreement with the reference labels after accounting for label prevalence.
+
+The analysis reports these classification metrics as unavailable when a task contains only one reference class. On such a task, recall for the present class duplicates accuracy, precision has no false positives to measure, and F1 adds no independent information.
 
 Consistency is the share of repeated labels matching an example's modal label. Flip rate is the share of examples with more than one observed label. Label entropy measures the same variation in bits.
 

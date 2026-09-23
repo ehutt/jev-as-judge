@@ -385,31 +385,32 @@ def bootstrap_accuracy(group: pd.DataFrame) -> tuple[float, float]:
     return float(interval.low), float(interval.high)
 
 
+def precision_recall_f1(
+    *, truth: pd.Series, predicted: pd.Series, label: str
+) -> tuple[float, float, float]:
+    true_positive = int(((truth == label) & (predicted == label)).sum())
+    false_positive = int(((truth != label) & (predicted == label)).sum())
+    false_negative = int(((truth == label) & (predicted != label)).sum())
+    precision = (
+        true_positive / (true_positive + false_positive) if true_positive + false_positive else 0.0
+    )
+    recall = (
+        true_positive / (true_positive + false_negative) if true_positive + false_negative else 0.0
+    )
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return precision, recall, f1
+
+
 def classification_metrics(group: pd.DataFrame) -> tuple[float, float, float, float]:
     truth = group["expected"].astype(str)
     predicted = group["label"].fillna("<failure>").astype(str)
     labels = sorted(truth.unique())
-    precision_values: list[float] = []
-    recall_values: list[float] = []
-    f1_values: list[float] = []
-    for label in labels:
-        true_positive = int(((truth == label) & (predicted == label)).sum())
-        false_positive = int(((truth != label) & (predicted == label)).sum())
-        false_negative = int(((truth == label) & (predicted != label)).sum())
-        precision = (
-            true_positive / (true_positive + false_positive)
-            if true_positive + false_positive
-            else 0.0
-        )
-        recall = (
-            true_positive / (true_positive + false_negative)
-            if true_positive + false_negative
-            else 0.0
-        )
-        f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
-        precision_values.append(precision)
-        recall_values.append(recall)
-        f1_values.append(f1)
+    if len(labels) < 2:
+        return math.nan, math.nan, math.nan, math.nan
+
+    scores = [
+        precision_recall_f1(truth=truth, predicted=predicted, label=label) for label in labels
+    ]
 
     observed = float((truth == predicted).mean())
     all_labels = sorted(set(truth) | set(predicted))
@@ -422,11 +423,61 @@ def classification_metrics(group: pd.DataFrame) -> tuple[float, float, float, fl
         else 1.0
     )
     return (
-        float(np.mean(precision_values)),
-        float(np.mean(recall_values)),
-        float(np.mean(f1_values)),
+        float(np.mean([precision for precision, _, _ in scores])),
+        float(np.mean([recall for _, recall, _ in scores])),
+        float(np.mean([f1 for _, _, f1 in scores])),
         kappa,
     )
+
+
+def summarize_class_balance(runs: pd.DataFrame) -> pd.DataFrame:
+    examples = runs[["evaluator", "example_id", "expected"]].drop_duplicates()
+    conflicts = examples.duplicated(["evaluator", "example_id"], keep=False)
+    if conflicts.any():
+        raise ValueError("An example has multiple expected labels within one evaluator")
+
+    balance = (
+        examples.groupby(["evaluator", "expected"], as_index=False)
+        .size()
+        .rename(columns={"size": "base_examples", "expected": "label"})
+    )
+    balance["expected_share"] = balance["base_examples"] / balance.groupby("evaluator")[
+        "base_examples"
+    ].transform("sum")
+    balance["expected_class_count"] = balance.groupby("evaluator")["label"].transform("size")
+    balance["classification_metrics_available"] = balance["expected_class_count"] > 1
+    return balance
+
+
+def summarize_class_metrics(runs: pd.DataFrame) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for (evaluator, judge), group in runs.groupby(["evaluator", "judge"], sort=True):
+        truth = group["expected"].astype(str)
+        predicted = group["label"].fillna("<failure>").astype(str)
+        labels = sorted(truth.unique())
+        metrics_available = len(labels) > 1
+        for label in labels:
+            precision, recall, f1 = (
+                precision_recall_f1(truth=truth, predicted=predicted, label=label)
+                if metrics_available
+                else (math.nan, math.nan, math.nan)
+            )
+            expected_rows = truth == label
+            rows.append(
+                {
+                    "evaluator": evaluator,
+                    "judge": judge,
+                    "label": label,
+                    "base_examples": int(group.loc[expected_rows, "example_id"].nunique()),
+                    "runs": int(expected_rows.sum()),
+                    "expected_share": float(expected_rows.mean()),
+                    "precision": precision,
+                    "recall": recall,
+                    "f1": f1,
+                    "metrics_available": metrics_available,
+                }
+            )
+    return pd.DataFrame(rows)
 
 
 def consistency_metrics(group: pd.DataFrame) -> tuple[float, float]:
@@ -938,6 +989,34 @@ def create_figures(
     write_figure(accuracy, path=figures_directory / "accuracy-heatmap.png")
     figures.append(("Model and task differences", "Accuracy at a glance", accuracy))
 
+    macro_f1_table = (
+        summary.pivot(index="evaluator", columns="judge", values="macro_f1").reindex(
+            index=evaluator_order, columns=judge_order
+        )
+        * 100
+    )
+    macro_f1_values = macro_f1_table.to_numpy()
+    macro_f1_text = np.array(
+        [["N/A" if pd.isna(value) else f"{value:.1f}%" for value in row] for row in macro_f1_values]
+    )
+    macro_f1 = go.Figure(
+        go.Heatmap(
+            z=macro_f1_values,
+            x=macro_f1_table.columns,
+            y=macro_f1_table.index,
+            zmin=float(np.nanmin(macro_f1_values)),
+            zmax=100,
+            colorscale="Blues",
+            text=macro_f1_text,
+            texttemplate="%{text}",
+            hovertemplate="%{y}<br>%{x}: %{text}<extra></extra>",
+        )
+    )
+    macro_f1.update_layout(title="Macro F1 by task and judge")
+    macro_f1.update_yaxes(autorange="reversed")
+    write_figure(macro_f1, path=figures_directory / "macro-f1-heatmap.png")
+    figures.append(("Model and task differences", "Class-balanced performance", macro_f1))
+
     centered_accuracy = accuracy_table.sub(accuracy_table.mean(axis=1), axis=0)
     centered_limit = float(np.abs(centered_accuracy.to_numpy()).max())
     relative_accuracy = go.Figure(
@@ -1441,6 +1520,8 @@ def write_report(
     sweep_run_id: str,
     runs: pd.DataFrame,
     summary: pd.DataFrame,
+    class_balance: pd.DataFrame,
+    class_metrics: pd.DataFrame,
     jev_comparison: pd.DataFrame,
     jev_uncertainty_tests: pd.DataFrame,
     jev_uncertainty_by_task: pd.DataFrame,
@@ -1457,6 +1538,41 @@ def write_report(
         jev_uncertainty_tests=jev_uncertainty_tests,
         task_divergence=task_divergence,
         pairwise_significance=pairwise_significance,
+    )
+    class_balance_table = class_balance.rename(
+        columns={
+            "evaluator": "Task",
+            "label": "Reference label",
+            "base_examples": "Base examples",
+            "expected_share": "Share",
+            "expected_class_count": "Classes",
+            "classification_metrics_available": "P/R/F1 available",
+        }
+    )
+    class_balance_table["Share"] = class_balance_table["Share"].map(lambda value: f"{value:.1%}")
+    class_balance_table["P/R/F1 available"] = class_balance_table["P/R/F1 available"].map(
+        {True: "Yes", False: "No"}
+    )
+    class_metrics_table = class_metrics.rename(
+        columns={
+            "evaluator": "Task",
+            "judge": "Judge",
+            "label": "Reference label",
+            "base_examples": "Base examples",
+            "runs": "Runs",
+            "expected_share": "Share",
+            "precision": "Precision",
+            "recall": "Recall",
+            "f1": "F1",
+            "metrics_available": "Metrics available",
+        }
+    )
+    for column in ["Share", "Precision", "Recall", "F1"]:
+        class_metrics_table[column] = class_metrics_table[column].map(
+            lambda value: "N/A" if pd.isna(value) else f"{value:.1%}"
+        )
+    class_metrics_table["Metrics available"] = class_metrics_table["Metrics available"].map(
+        {True: "Yes", False: "No"}
     )
     task_table = task_divergence[
         [
@@ -1605,7 +1721,8 @@ def write_report(
         "Model and task differences": (
             "These views share scales across judges and tasks. The relative-accuracy heatmap "
             "subtracts each task's mean, so model-specific strengths are visible even when all "
-            "judges score near the top of the raw accuracy scale."
+            "judges score near the top of the raw accuracy scale. Macro F1 gives each reference "
+            "label equal weight. N/A marks a task with only one reference class."
         ),
         "Jev request shapes": (
             "The effect plot pairs the two Jev modes on the same examples. Intervals resample "
@@ -1652,6 +1769,13 @@ def write_report(
             "runs, are omitted pending human adjudication. See "
             "<code>excluded-examples.csv</code> for the audit list.</p>"
         ),
+        "<h2>Class balance</h2>",
+        (
+            "<p>Precision, recall, and F1 require at least two reference classes in a task. "
+            "Single-class tasks retain accuracy, but their classification metrics are reported "
+            "as N/A rather than zero.</p>"
+        ),
+        class_balance_table.to_html(index=False),
         "<section class='findings'><h2>What stands out</h2><ul>",
         *(f"<li>{html.escape(finding)}</li>" for finding in findings),
         "</ul></section>",
@@ -1716,7 +1840,10 @@ def write_report(
                 else "<p>No pairwise task comparisons remain significant at q &lt; 0.05.</p>"
             ),
             "<details><summary>Full metric table</summary>",
-            summary.to_html(index=False, float_format=lambda value: f"{value:.6g}"),
+            summary.to_html(index=False, na_rep="N/A", float_format=lambda value: f"{value:.6g}"),
+            "</details>",
+            "<details><summary>Per-class precision, recall, and F1</summary>",
+            class_metrics_table.to_html(index=False),
             "</details>",
             "</body></html>",
         ]
@@ -1741,6 +1868,8 @@ def main() -> None:
     runs = selected_runs[selected_runs["exclusion_reason"].isna()].copy()
     excluded_examples = summarize_exclusions(excluded_runs)
     summary = summarize(runs)
+    class_balance = summarize_class_balance(runs)
+    class_metrics = summarize_class_metrics(runs)
     example_results = get_example_results(runs)
     jev_comparison = compare_jev_modes(example_results)
     (
@@ -1756,6 +1885,8 @@ def main() -> None:
     selected_runs.to_csv(output_directory / "runs.csv", index=False)
     excluded_examples.to_csv(output_directory / "excluded-examples.csv", index=False)
     summary.to_csv(output_directory / "summary.csv", index=False)
+    class_balance.to_csv(output_directory / "class-balance.csv", index=False)
+    class_metrics.to_csv(output_directory / "class-metrics.csv", index=False)
     example_results.to_csv(output_directory / "example-results.csv", index=False)
     jev_comparison.to_csv(output_directory / "jev-comparison.csv", index=False)
     jev_uncertainty_alignment.to_csv(
@@ -1781,6 +1912,8 @@ def main() -> None:
         sweep_run_id=args.sweep_run_id,
         runs=runs,
         summary=summary,
+        class_balance=class_balance,
+        class_metrics=class_metrics,
         jev_comparison=jev_comparison,
         jev_uncertainty_tests=jev_uncertainty_tests,
         jev_uncertainty_by_task=jev_uncertainty_by_task,
