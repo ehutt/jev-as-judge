@@ -1,0 +1,50 @@
+{
+  "name": "jev-as-judge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproducible benchmark comparing Jev with LLM judges on Phoenix classification-evaluator tasks.",
+  "license": "Elastic-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AparnaDhinakaran/jev-as-judge.git"
+  },
+  "homepage": "https://github.com/AparnaDhinakaran/jev-as-judge#readme",
+  "bugs": {
+    "url": "https://github.com/AparnaDhinakaran/jev-as-judge/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "analyze": "uv run --no-config --locked --script analysis/analyze.py",
+    "analysis:check": "uv run --no-config --locked --script analysis/analyze.py --help",
+    "build": "tsc --noEmit",
+    "evals": "vitest run --config phoenix.vitest.config.ts",
+    "evals:local": "PHOENIX_TEST_TRACKING=false vitest run --config phoenix.vitest.config.ts",
+    "setup:costs": "node --import tsx setup-phoenix-costs.ts",
+    "sweep": "node --import tsx sweep.ts",
+    "test": "vitest run --config vitest.config.ts",
+    "verify": "pnpm run build && pnpm run test && pnpm run analysis:check"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.58",
+    "@ai-sdk/google": "4.0.76",
+    "@ai-sdk/openai": "4.0.71",
+    "@ai-sdk/typesafe-ai": "3.0.4",
+    "@arizeai/phoenix-client": "7.12.0",
+    "@arizeai/phoenix-evals": "2.5.0",
+    "@opentelemetry/api": "1.9.1",
+    "ai": "7.0.107",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@opentelemetry/sdk-trace-base": "2.11.0",
+    "@types/node": "26.6.2",
+    "dotenv": "17.4.2",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  },
+  "engines": {
+    "node": ">=24.20.0"
+  },
+  "packageManager": "pnpm@12.0.0"
+}

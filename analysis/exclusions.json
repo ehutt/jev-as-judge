@@ -1,0 +1,47 @@
+[
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: Book a flight from NYC to LAX for January 20th",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: Search for running shoes under $150",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: Create a meeting titled 'Team Sync' tomorrow from 2pm to 3pm",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: Book flights for our team of 5 - we need NYC to Chicago, then Chicago to Denver, and finally Denver back to NYC",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: I need to book travel for our Q1 offsite.\nAssistant: I can help with that. Where will the offsite be held?\nUser: We're going to Austin, Texas.\nAssistant: Great choice! When is the offsite?\nUser: February 15th through 17th. We have 8 people attending.\nUser: Go ahead and book the outbound flight from San Francisco.",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: I want to set up a recurring team standup.\nAssistant: Sure! What time works best for your team?\nUser: 9:30 AM every day, for 15 minutes.\nUser: Let's start with just tomorrow's standup and I'll set up the recurring one later.",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: I need to schedule a dentist appointment for next Tuesday at 10am, should take about an hour",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: Email Sarah about the project deadline",
+    "reason": "Pending human adjudication of grounding assumptions"
+  },
+  {
+    "evaluator": "tool_invocation",
+    "input_text": "User: I need a flight from Phoenix to Portland on February 1st for 2 people",
+    "reason": "Pending human adjudication of grounding assumptions"
+  }
+]
