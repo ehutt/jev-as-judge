@@ -1,12 +1,13 @@
 {
-  "name": "jev-as-judge",
+  "name": "jev-as-judge-phoenix-evals",
   "version": "1.0.0",
   "private": true,
   "description": "Reproducible benchmark comparing Jev with LLM judges on Phoenix classification-evaluator tasks.",
   "license": "Elastic-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AparnaDhinakaran/jev-as-judge.git"
+    "url": "git+https://github.com/AparnaDhinakaran/jev-as-judge.git",
+    "directory": "benchmarks/phoenix-evals"
   },
   "homepage": "https://github.com/AparnaDhinakaran/jev-as-judge#readme",
   "bugs": {

@@ -1,9 +1,15 @@
-name: CI
+name: Phoenix Evals benchmark
 
 on:
   pull_request:
+    paths:
+      - benchmarks/phoenix-evals/**
+      - .github/workflows/ci.yml
   push:
     branches: [main]
+    paths:
+      - benchmarks/phoenix-evals/**
+      - .github/workflows/ci.yml
 
 permissions:
   contents: read
@@ -11,6 +17,9 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: benchmarks/phoenix-evals
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -19,8 +28,9 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .node-version
+          node-version-file: benchmarks/phoenix-evals/.node-version
           cache: pnpm
+          cache-dependency-path: benchmarks/phoenix-evals/pnpm-lock.yaml
       - uses: astral-sh/setup-uv@v7
         with:
           version: 0.12.17

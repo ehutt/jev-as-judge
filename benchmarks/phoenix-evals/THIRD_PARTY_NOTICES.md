@@ -4,7 +4,7 @@
 
 The files in `src/jev/templates/` were copied from the generated Phoenix TypeScript evaluator templates at commit `6f03f903b8d3eddffe11e6b695c1c24e244f946a` in [Arize-ai/phoenix](https://github.com/Arize-ai/phoenix). Their SHA-256 digests are locked in `src/jev/templates/index.ts` and checked by the offline tests.
 
-Phoenix is distributed under the Elastic License 2.0. See `LICENSE`.
+Phoenix is distributed under the Elastic License 2.0. See the [repository license](../../LICENSE).
 
 ## NVIDIA Nemotron-PII
 
