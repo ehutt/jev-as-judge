@@ -46,12 +46,51 @@ JUDGE_ORDER = [
 EXCLUSIONS_FILE = Path(__file__).with_name("exclusions.json")
 
 
-def load_exclusions() -> dict[tuple[str, str], str]:
+def load_exclusions() -> tuple[
+    dict[tuple[str, str], str],
+    dict[tuple[str, str], str],
+]:
     records = json.loads(EXCLUSIONS_FILE.read_text())
-    return {(record["evaluator"], record["input_text"]): record["reason"] for record in records}
+    by_input_text = {
+        (record["evaluator"], record["input_text"]): record["reason"]
+        for record in records
+        if "input_text" in record
+    }
+    by_example_id = {
+        (record["evaluator"], record["example_id"]): record["reason"]
+        for record in records
+        if "example_id" in record
+    }
+    return by_input_text, by_example_id
 
 
-EXCLUSION_REASON_BY_EXAMPLE = load_exclusions()
+EXCLUSION_REASON_BY_INPUT_TEXT, EXCLUSION_REASON_BY_EXAMPLE_ID = load_exclusions()
+
+
+def get_exclusion_reason(
+    *, evaluator: str, example_id: str, input_text: object
+) -> str | None:
+    if reason := EXCLUSION_REASON_BY_EXAMPLE_ID.get((evaluator, example_id)):
+        return reason
+    if isinstance(input_text, str):
+        return EXCLUSION_REASON_BY_INPUT_TEXT.get((evaluator, input_text))
+    return None
+
+
+def apply_exclusions(runs: pd.DataFrame) -> pd.DataFrame:
+    runs = runs.copy()
+    if "exclusion_reason" not in runs:
+        runs["exclusion_reason"] = None
+    configured_reasons = runs.apply(
+        lambda row: get_exclusion_reason(
+            evaluator=str(row["evaluator"]),
+            example_id=str(row["example_id"]),
+            input_text=row.get("input_text"),
+        ),
+        axis=1,
+    )
+    runs["exclusion_reason"] = configured_reasons.combine_first(runs["exclusion_reason"])
+    return runs
 
 EXPERIMENT_RUNS_QUERY = """
 query JudgeSweepExperimentRuns($experimentId: ID!, $after: String) {
@@ -298,10 +337,10 @@ def build_run_row(
         "failure_class": failure_class,
         "error": error,
         "input_text": input_text,
-        "exclusion_reason": (
-            EXCLUSION_REASON_BY_EXAMPLE.get((evaluator, input_text))
-            if isinstance(input_text, str)
-            else None
+        "exclusion_reason": get_exclusion_reason(
+            evaluator=evaluator,
+            example_id=example_id,
+            input_text=input_text,
         ),
     }
 
@@ -1764,10 +1803,15 @@ def write_report(
             "Failures remain in every denominator.</p>"
         ),
         (
-            f"<p><strong>Temporary exclusion:</strong> {len(excluded_examples)} disputed "
-            f"tool-invocation examples, representing {excluded_run_count:,} judge-repetition "
-            "runs, are omitted pending human adjudication. See "
-            "<code>excluded-examples.csv</code> for the audit list.</p>"
+            f"<p><strong>Exclusions:</strong> {len(excluded_examples)} examples, representing "
+            f"{excluded_run_count:,} judge-repetition runs, are omitted under the configured "
+            "benchmark exclusions. See <code>excluded-examples.csv</code> for the audit list.</p>"
+        ),
+        (
+            "<p><strong>Human adjudication:</strong> Twenty disputed examples were reviewed on "
+            "2026-09-23. No ground-truth labels were changed. Ten examples retained their "
+            "existing labels; ten were excluded. One formerly excluded tool-invocation example "
+            "was restored with its existing <code>correct</code> label.</p>"
         ),
         "<h2>Class balance</h2>",
         (
@@ -1863,7 +1907,7 @@ def main() -> None:
         if args.runs_csv is not None
         else load_runs(sweep_run_id=args.sweep_run_id, base_url=base_url)
     )
-    selected_runs = select_best_experiments(loaded_runs)
+    selected_runs = apply_exclusions(select_best_experiments(loaded_runs))
     excluded_runs = selected_runs[selected_runs["exclusion_reason"].notna()].copy()
     runs = selected_runs[selected_runs["exclusion_reason"].isna()].copy()
     excluded_examples = summarize_exclusions(excluded_runs)

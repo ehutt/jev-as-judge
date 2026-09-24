@@ -2,8 +2,10 @@
  * PII-detection evaluator benchmark
  *
  * Reads the checked-in JSONL at `fixtures/pii_detection.nemotron.jsonl`, a
- * 150-record sample of the public nvidia/Nemotron-PII dataset. The fixed file
- * keeps the suite deterministic and offline.
+ * 150-record sample of the public nvidia/Nemotron-PII dataset. Fourteen records
+ * with unresolved source-taxonomy conflicts are listed in
+ * `fixtures/pii_detection.exclusions.json`, leaving 136 scored examples. The
+ * fixed files keep the suite deterministic and offline.
  *
  * Nemotron-PII is a span-annotated NER corpus that is ~99% positive, so this
  * suite measures only the binary DETECTION RATE: given realistic PII-bearing
@@ -33,13 +35,30 @@ type NemotronRecord = {
   expected_label: PiiLabel;
 };
 
+type PiiExclusion = {
+  uid: string;
+  reason: string;
+};
+
 const fixturePath = fileURLToPath(
   new URL("./fixtures/pii_detection.nemotron.jsonl", import.meta.url)
 );
-const records = readFileSync(fixturePath, "utf-8")
+const allRecords = readFileSync(fixturePath, "utf-8")
   .trim()
   .split("\n")
   .map((line) => JSON.parse(line) as NemotronRecord);
+const exclusionsPath = fileURLToPath(
+  new URL("./fixtures/pii_detection.exclusions.json", import.meta.url)
+);
+const exclusions = JSON.parse(
+  readFileSync(exclusionsPath, "utf-8")
+) as PiiExclusion[];
+const excludedUids = new Set(exclusions.map(({ uid }) => uid));
+const records = allRecords.filter(({ uid }) => !excludedUids.has(uid));
+
+if (allRecords.length - records.length !== exclusions.length) {
+  throw new Error("PII exclusion list contains a UID that is missing or duplicated");
+}
 
 const evaluator = resolveEvaluator("pii_detection");
 
@@ -106,7 +125,7 @@ px.describe(
   },
   {
     description:
-      "PII detection rate on a stratified 150-record sample of nvidia/Nemotron-PII (structured/unstructured x US/intl). All cases contain PII, so accuracy measures recall (detection rate).",
+      "PII detection rate on 136 records from a stratified nvidia/Nemotron-PII sample (structured/unstructured x US/intl), after excluding 14 source-taxonomy conflicts. Every retained case contains at least one source-annotated PII category, so accuracy is reported as positive-slice detection rate.",
     ...getSuiteConfig("pii_detection"),
     acceptanceCriteria: [
       { annotationName: "accuracy", metric: "average", threshold: 0.9 },

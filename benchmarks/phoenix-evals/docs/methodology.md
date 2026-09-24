@@ -12,7 +12,7 @@ These results apply to the examples, prompts, models, and provider behavior reco
 
 ## Experimental unit
 
-The benchmark has 532 base examples across ten tasks. The default configuration runs each example ten times per judge. One full sweep therefore has 5,320 model calls per judge and 37,240 calls across seven judges.
+The current source runs 527 base examples across ten tasks. The default configuration runs each example ten times per judge. One full sweep therefore has 5,270 model calls per judge and 36,890 calls across seven judges. The published analysis scores 517 examples after ten documented exclusions, or 36,190 judge-repetition runs.
 
 The base example is the independent sampling unit. Repetitions measure judge variability and are not treated as additional independent examples in confidence intervals.
 
@@ -20,7 +20,7 @@ The base example is the independent sampling unit. Repetitions measure judge var
 
 Nine suites use checked-in examples written to probe the decision boundary in the matching Phoenix evaluator rubric. Correctness expands each question into one correct and one incorrect response. The other authored suites store their expected label next to the input.
 
-The PII suite uses a fixed, checked-in 150-record sample from NVIDIA Nemotron-PII. Every sampled record contains at least one annotated PII category. The suite therefore measures detection rate, which is recall on this all-positive slice. It cannot measure precision or false-positive rate.
+The PII fixture is a fixed, checked-in 150-record sample from NVIDIA Nemotron-PII. Fourteen records are omitted before execution because the source span taxonomy does not determine a Phoenix document-level label. Every one of the 136 retained records contains at least one annotated PII category. The suite therefore measures detection rate, which is recall on this all-positive slice. It cannot measure precision or false-positive rate.
 
 ## Prompt conditions
 
@@ -60,7 +60,9 @@ Latency is elapsed evaluator time recorded by Phoenix. Cost uses Phoenix's trace
 
 The analyzer selects one experiment for each judge and task when a resumed run created duplicates. It prefers the experiment with the most rows, then the fewest errors, then the most recent experiment ID. The raw selection remains visible in `runs.csv` through experiment IDs.
 
-Nine tool-invocation examples are temporarily excluded from comparative statistics because their labels depend on disputed assumptions about whether the user supplied enough information for a tool call. `excluded-examples.csv` records the exact examples and reason. The underlying Phoenix runs are not deleted.
+Twenty disputed examples were manually adjudicated on 2026-09-23. No ground-truth labels were changed. Ten examples retained their existing labels. Ten were excluded from comparative statistics: eight tool-invocation cases whose labels depend on underspecified grounding assumptions, one correctness case with ambiguous taxonomic wording, and one tool-response case whose treatment of an unsupported query repair falls between rubric dimensions. One previously excluded tool-invocation case was restored with its existing `correct` label.
+
+The PII review separately removed 14 source-taxonomy conflicts from the executable fixture. `analysis/exclusions.json` preserves their original experiment IDs so the same records are excluded when the original 150-case Phoenix experiments are reanalyzed. `excluded-examples.csv` records every exclusion present in a particular analysis run. The underlying Phoenix runs are not deleted.
 
 ## Interpretation limits
 

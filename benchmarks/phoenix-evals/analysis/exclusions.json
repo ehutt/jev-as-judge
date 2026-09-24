@@ -1,47 +1,144 @@
 [
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjgzOQ==",
     "input_text": "User: Book a flight from NYC to LAX for January 20th",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
-    "input_text": "User: Search for running shoes under $150",
-    "reason": "Pending human adjudication of grounding assumptions"
-  },
-  {
-    "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg0MQ==",
     "input_text": "User: Create a meeting titled 'Team Sync' tomorrow from 2pm to 3pm",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg0NA==",
     "input_text": "User: Book flights for our team of 5 - we need NYC to Chicago, then Chicago to Denver, and finally Denver back to NYC",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg0Ng==",
     "input_text": "User: I need to book travel for our Q1 offsite.\nAssistant: I can help with that. Where will the offsite be held?\nUser: We're going to Austin, Texas.\nAssistant: Great choice! When is the offsite?\nUser: February 15th through 17th. We have 8 people attending.\nUser: Go ahead and book the outbound flight from San Francisco.",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg0Nw==",
     "input_text": "User: I want to set up a recurring team standup.\nAssistant: Sure! What time works best for your team?\nUser: 9:30 AM every day, for 15 minutes.\nUser: Let's start with just tomorrow's standup and I'll set up the recurring one later.",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg1MQ==",
     "input_text": "User: I need to schedule a dentist appointment for next Tuesday at 10am, should take about an hour",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg1Mg==",
     "input_text": "User: Email Sarah about the project deadline",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
   },
   {
     "evaluator": "tool_invocation",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg1Mw==",
     "input_text": "User: I need a flight from Phoenix to Portland on February 1st for 2 people",
-    "reason": "Pending human adjudication of grounding assumptions"
+    "reason": "Excluded after human adjudication because the example depends on underspecified grounding assumptions"
+  },
+  {
+    "evaluator": "correctness",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjgxMA==",
+    "reason": "Excluded after human adjudication because genus/species wording and taxonomic status make the binary correctness label ambiguous"
+  },
+  {
+    "evaluator": "tool_response_handling",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MzAyMQ==",
+    "reason": "Excluded after human adjudication because the rubric is ambiguous about whether unsupported query repair is a response-handling error"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg2NA==",
+    "source_uid": "fb7ae8e86d74475fbd50e4e6d83eabc9",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg2Nw==",
+    "source_uid": "704c476987484c2c9bc51a83f436c8ce",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg3MQ==",
+    "source_uid": "c84137a7e2a74d2a88163155766f5429",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg3Mg==",
+    "source_uid": "369fb6161d954046bfd3b4431cc5327a",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjg3Mw==",
+    "source_uid": "f32d0dd7c8e543dfa32580ca6bd38292",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkwMg==",
+    "source_uid": "b6393d27bb4a4128a2275f39d39218fe",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkwMw==",
+    "source_uid": "17a433f66590469a8b42691a06c9731b",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkwNg==",
+    "source_uid": "678f3b1e72dd49c8a2fe07339e88c8cd",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkxMg==",
+    "source_uid": "1518bc9d4e4840c39a41a7fe9c8ec76c",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkyNg==",
+    "source_uid": "a26efa292814497dbd13d4fd9729cb08",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6MjkyOQ==",
+    "source_uid": "fb176da8f6674f5caba60d61cee32fde",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjk0OQ==",
+    "source_uid": "6d9091a69ac546e1ad2c5af4980a3202",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjk1NQ==",
+    "source_uid": "2fae3883732f49df8f536a290be2ec5b",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
+  },
+  {
+    "evaluator": "pii_detection",
+    "example_id": "RGF0YXNldEV4YW1wbGU6Mjk2Ng==",
+    "source_uid": "cda87abb90404b7aa5066555f9f11d4d",
+    "reason": "Excluded because the Nemotron span taxonomy does not determine the Phoenix document-level label"
   }
 ]

@@ -1,0 +1,58 @@
+[
+  {
+    "uid": "fb7ae8e86d74475fbd50e4e6d83eabc9",
+    "reason": "Source spans describe a public event and organization-owned routing number; Phoenix requires an identifiable living person."
+  },
+  {
+    "uid": "704c476987484c2c9bc51a83f436c8ce",
+    "reason": "Political affiliation addresses a generic reader and the remaining spans describe public election information or a system URL."
+  },
+  {
+    "uid": "c84137a7e2a74d2a88163155766f5429",
+    "reason": "Financial identifiers belong to a company rather than an identifiable living person."
+  },
+  {
+    "uid": "369fb6161d954046bfd3b4431cc5327a",
+    "reason": "Coordinates and timestamps identify an incident scene and photos rather than a living person."
+  },
+  {
+    "uid": "f32d0dd7c8e543dfa32580ca6bd38292",
+    "reason": "Source spans are organization identifiers, a role inbox, and group-level audience attributes."
+  },
+  {
+    "uid": "b6393d27bb4a4128a2275f39d39218fe",
+    "reason": "The phone number and URL are public organization contact information."
+  },
+  {
+    "uid": "17a433f66590469a8b42691a06c9731b",
+    "reason": "Sensitive attributes occur in a hypothetical example or describe an unnamed group."
+  },
+  {
+    "uid": "678f3b1e72dd49c8a2fe07339e88c8cd",
+    "reason": "Coordinates identify a water sampling site rather than a living person."
+  },
+  {
+    "uid": "1518bc9d4e4840c39a41a7fe9c8ec76c",
+    "reason": "Political affiliation is group-level and the email and cookie appear as explicit examples."
+  },
+  {
+    "uid": "a26efa292814497dbd13d4fd9729cb08",
+    "reason": "Account, card, and server identifiers are explicitly corporate."
+  },
+  {
+    "uid": "fb176da8f6674f5caba60d61cee32fde",
+    "reason": "Identifiers occur in explicitly labeled API examples and code snippets."
+  },
+  {
+    "uid": "6d9091a69ac546e1ad2c5af4980a3202",
+    "reason": "The token is marked as a test credential and is not tied to a person."
+  },
+  {
+    "uid": "2fae3883732f49df8f536a290be2ec5b",
+    "reason": "Blood type describes an unnamed group and the other spans are generic report context."
+  },
+  {
+    "uid": "cda87abb90404b7aa5066555f9f11d4d",
+    "reason": "The personal-looking email appears in an explicit example, which conflicts with Phoenix's hard exception."
+  }
+]

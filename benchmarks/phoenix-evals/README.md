@@ -1,23 +1,24 @@
 # Phoenix Evals benchmark
 
-This benchmark compares two ways of using Jev as an evaluator with five language-model judges. Every judge sees the same 532 examples across ten Phoenix classification tasks. The default experiment repeats each example ten times and records accuracy, consistency, latency, token usage, and cost in Phoenix.
+This benchmark compares two ways of using Jev as an evaluator with five language-model judges. Every judge sees the same 527 executed examples across ten Phoenix classification tasks. The published analysis scores 517 examples after ten documented benchmark exclusions. The default experiment repeats each example ten times and records accuracy, consistency, latency, token usage, and cost in Phoenix.
 
 This is a research benchmark, not a general ranking of model quality. Most cases are purpose-built boundary examples. The PII task uses a fixed sample of NVIDIA's synthetic Nemotron-PII dataset.
 
 ## What the benchmark runs
 
-| Task | Base examples | Ground-truth labels |
-| --- | ---: | --- |
-| Correctness | 80 | correct / incorrect |
-| Conciseness | 34 | concise / verbose |
-| Hallucination | 37 | grounded / hallucinated |
-| Refusal | 40 | refusal / non-refusal |
-| Retrieval relevance | 33 | relevant / irrelevant |
-| Tool invocation | 22 | correct / incorrect |
-| Tool-response handling | 51 | correct / incorrect |
-| Completeness | 45 | complete / incomplete |
-| User friction | 40 | friction / no friction |
-| PII detection | 150 | PII detected |
+| Task | Executed | Scored | Ground-truth labels |
+| --- | ---: | ---: | --- |
+| Correctness | 80 | 79 | correct / incorrect |
+| Conciseness | 34 | 34 | concise / verbose |
+| Hallucination | 37 | 37 | grounded / hallucinated |
+| Refusal | 40 | 40 | refusal / non-refusal |
+| Retrieval relevance | 33 | 33 | relevant / irrelevant |
+| Tool invocation | 31 | 23 | correct / incorrect |
+| Tool-response handling | 51 | 50 | correct / incorrect |
+| Completeness | 45 | 45 | complete / incomplete |
+| User friction | 40 | 40 | friction / no friction |
+| PII detection | 136 | 136 | PII detected |
+| **Total** | **527** | **517** | |
 
 The two Jev conditions differ only in request shape:
 
@@ -88,7 +89,7 @@ This type-checks the TypeScript, runs the offline unit tests, and verifies that 
 
 ## Run a smoke test first
 
-A full run makes 37,240 paid evaluator calls. Start with one repetition, one task, and one judge:
+A full run makes 36,890 paid evaluator calls. The analysis omits ten adjudicated examples after export, so headline metrics use 36,190 judge-repetition runs. Start with one repetition, one task, and one judge:
 
 ```bash
 SWEEP_RUN_ID=smoke-$(date -u +%Y%m%dT%H%M%SZ) \
